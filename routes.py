@@ -4,6 +4,7 @@ from models import db, User
 from auth import auth, verify_password
 
 bp = Blueprint('main', __name__)
+
 tokens = {}
 
 @bp.route('/')
@@ -19,30 +20,28 @@ def login():
             token = f"{username}_static_token"
             tokens[username] = token
             session['token'] = token
-            return redirect(url_for('main.search_user'))
+            return redirect(url_for('main.search'))
         else:
             return "Invalid credentials", 401
     return render_template('login.html')
 
 @bp.route('/search', methods=['GET', 'POST'])
 @auth.login_required
-def search_user():
+def search():
     if request.method == 'POST':
-        username = request.form['username']
-        query = text(f"SELECT * FROM user WHERE username = '{username}'")
-        result = db.session.execute(query)
-        user = result.fetchone()
-        if user:
-            return f"User: {user.username}, Email: {user.email}"
-        else:
-            return "User not found", 404
-    return render_template('search.html')
+        search_username = request.form.get('search_username', '')
+        xss_username = request.form.get('xss_username', '')
 
-@bp.route('/xss', methods=['GET', 'POST'])
-def xss_vulnerability():
-    if 'token' not in session or session['token'] not in tokens.values():
-        return redirect(url_for('main.login'))
-    if request.method == 'POST':
-        username = request.form['username']
-        return render_template('xss_result.html', username=username)
-    return render_template('xss.html')
+        if search_username:
+            # Intentionally introducing SQL injection vulnerability
+            query = text(f"SELECT * FROM user WHERE username = '{search_username}'")
+            result = db.session.execute(query)
+            user = result.fetchone()
+            if user:
+                return f"User: {user.username}, Email: {user.email}"
+            else:
+                return "User not found", 404
+        elif xss_username:
+            return render_template('xss_result.html', username=xss_username)
+
+    return render_template('search.html')

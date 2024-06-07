@@ -5,9 +5,11 @@
     <title>XSS Vulnerability</title>
 </head>
 <body>
-    <form method="post">
-        Username: <input type="text" name="username">
-        <input type="submit" value="Search">
+    <form method="POST" action="{{ url_for('main.search_user') }}">
+        <input type="hidden" name="action" value="xss">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username">
+        <button type="submit">Submit</button>
     </form>
 </body>
 </html>
