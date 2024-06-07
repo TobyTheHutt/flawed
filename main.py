@@ -2,7 +2,6 @@ from flask import Flask
 from config import Config
 from models import db
 import routes
-# import psycopg2
 
 app = Flask(__name__)
 app.config.from_object(Config)
