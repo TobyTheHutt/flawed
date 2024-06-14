@@ -1,0 +1,15 @@
+services:
+  flawed:
+    build:
+      context: ./flawed
+    container_name: flawed
+    
+  nginx:
+    image: bitnami/nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/flawed_rp.conf:/opt/bitnami/nginx/conf/server_blocks/flawed_rp.conf:ro
+      - ./nginx/server.key:/opt/bitnami/nginx/conf/certs/server.key
+      - ./nginx/server.crt:/opt/bitnami/nginx/conf/certs/server.crt
+    ports:
+      - "9443:9080"
